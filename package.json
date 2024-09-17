@@ -4,14 +4,31 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "lint": "eslint ./",
-    "set-node-env": "set NODE_ENV=test",
-    "test": "jest",
-    "test:whatch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "prestart": "cross-env NODE_ENV=production",
+    "start": "nodemon dist/server.js",
+    "automigrate": "npx sequelize db:migrate --env development",
+    "build": "babel src --out-dir dist  --ignore src/extends/ --source-maps inline",
+    "pretest": "cross-env NODE_ENV=test npm run db:migrate",
+    "test": "jest --coverage --config=jest.config.js --runInBand --detectOpenHandles --forceExit",
+    "test:whatch": "jest --watchAll",
+    "coverage": "npm run pretest && jest --coverage --detectOpenHandles --forceExit && cat ./coverage/lcov.info | coveralls",
     "test:coveralls": "jest --coverage && coveralls < coverage/lcov.info",
     "test:staged": "jest --findRelatedTests",
-    "start": "nodemon --exec babel-node server.js"
+    "coveralls": "cat covarage/lcov.info | coveralls",
+    "sequelize": "./node_modules/.bin/babel-node ./node_modules/.bin/sequelize $*",
+    "db:create": "./node_modules/.bin/sequelize db:create",
+    "db:create:test": "env NODE_ENV=test ./node_modules/.bin/sequelize db:create",
+    "db:drop": "./node_modules/.bin/sequelize db:drop",
+    "db:drop:test": "env NODE_ENV=test ./node_modules/.bin/sequelize db:drop",
+    "db:migrate": "./node_modules/.bin/sequelize db:migrate",
+    "db:migrate:reset": "./node_modules/.bin/sequelize db:migrate:undo:all",
+    "db:migrate:test": "cross-env NODE_ENV=test npm run db:migrate",
+    "lint": "eslint src/",
+    "lint:fix": "eslint --fix src/",
+    "dev": "cross-env NODE_ENV=development nodemon --exec babel-node src/server.js"
+  },
+  "jest": {
+    "collectCoverage": true
   },
   "repository": {
     "type": "git",
@@ -25,8 +42,10 @@
   "homepage": "https://github.com/GolgothaAksanti/forum#readme",
   "dependencies": {
     "@babel/register": "^7.12.10",
+    "@babel/runtime": "^7.13.10",
     "@hapi/joi": "^17.1.1",
     "axios": "^0.21.1",
+    "babel-jest": "^26.6.3",
     "babel-plugin-add-module-exports": "^1.0.4",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
@@ -37,19 +56,21 @@
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
     "mysql2": "^2.2.5",
-    "sequelize": "^6.3.5",
-    "supertest": "^6.1.3"
+    "sequelize": "^6.3.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.10",
     "@babel/core": "^7.0.0",
     "@babel/node": "^7.12.10",
+    "@babel/plugin-transform-runtime": "^7.13.10",
     "@babel/preset-env": "^7.12.11",
     "@typescript-eslint/eslint-plugin": "^4.14.0",
     "@typescript-eslint/parser": "^4.14.0",
     "babel-core": "^7.0.0-bridge.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-register": "^6.26.0",
     "coveralls": "^3.1.0",
+    "cross-env": "^7.0.3",
     "eslint": "^7.18.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^7.1.0",
@@ -58,6 +79,8 @@
     "jest": "^26.6.3",
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1",
-    "sequelize-cli": "^6.2.0"
+    "regenerator-runtime": "^0.13.7",
+    "sequelize-cli": "^6.2.0",
+    "supertest": "^6.1.3"
   }
 }
